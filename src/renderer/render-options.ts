@@ -12,7 +12,7 @@ export const DEFAULT_RENDER_OPTIONS: Required<RenderOptions> = {
   height: 600,
   background: '#ffffff',
   quality: 'medium',
-  deviceScaleFactor: 2,
+  deviceScaleFactor: undefined as unknown as number,
 };
 
 /**

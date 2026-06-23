@@ -222,7 +222,7 @@ async function main() {
     width: 1200,
     height: 700,
     background: '#0a0a1a',
-    quality: 'high',
+    quality: 'low',
   });
 
   // Title

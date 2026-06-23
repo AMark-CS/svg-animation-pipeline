@@ -63,7 +63,7 @@ export class PuppeteerRenderer {
     await this.page.setViewport({
       width: this.options.width,
       height: this.options.height,
-      deviceScaleFactor: this.options.deviceScaleFactor || qualityPreset.deviceScaleFactor,
+      deviceScaleFactor: qualityPreset.deviceScaleFactor,
     });
 
     // Disable external resources
@@ -115,9 +115,11 @@ export class PuppeteerRenderer {
    * Create HTML document wrapper for SVG
    */
   private createHTMLDocument(svg: string, css?: string): string {
-    // Add background rect to SVG
-    const bgRect = `<rect width="100%" height="100%" fill="${this.options.background}" />`;
-    const svgWithBg = svg.replace(/<svg/, `<svg><style>svg { background: ${this.options.background}; }</style>${bgRect}`);
+    // Wrap SVG with explicit dimensions
+    const wrappedSvg = svg.replace(
+      '<svg',
+      `<svg width="${this.options.width}" height="${this.options.height}"`
+    );
 
     return `
 <!DOCTYPE html>
@@ -132,11 +134,12 @@ export class PuppeteerRenderer {
       overflow: hidden;
       background: ${this.options.background};
     }
+    svg { display: block; }
     ${css || ''}
   </style>
 </head>
 <body>
-  ${svgWithBg}
+  ${wrappedSvg}
 </body>
 </html>
     `.trim();

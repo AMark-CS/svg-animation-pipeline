@@ -1,0 +1,6 @@
+node_modules/
+dist/
+output/
+.svg-anim-temp/
+*.log
+.DS_Store

@@ -126,8 +126,8 @@ new SVGAnimationPipeline(config: PipelineConfig, events?: PipelineEvents)
 
 ## Examples
 
-### AI Agent Architecture
-![Agent Architecture](./output/agent-architecture.gif)
+### Loop Engineering Internal Mechanism
+![Loop Engineering](./output/loop-engineering.gif)
 
 ### Run Example
 

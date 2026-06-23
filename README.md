@@ -126,16 +126,14 @@ new SVGAnimationPipeline(config: PipelineConfig, events?: PipelineEvents)
 
 ## Examples
 
-### Basic Path Animation
-![Basic Path](./output/basic-path.gif)
+### AI Agent Architecture
+![Agent Architecture](./output/agent-architecture.gif)
 
-### Path Morphing
-![Morph Demo](./output/morph-demo.gif)
+### Run Example
 
-### Layered Scene (Parallax)
-![Layered Scene](./output/layered-scene.gif)
-
-### Run Examples
+```bash
+npx ts-node examples/agent-architecture.ts
+```
 
 ## Architecture
 

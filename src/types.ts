@@ -26,6 +26,8 @@ export type EasingType =
   | 'easeInSine'
   | 'easeOutSine'
   | 'easeInOutSine'
+  | 'easeOutBack'
+  | 'easeOutElastic'
   | 'elastic'
   | 'bounce'
   | 'spring';

@@ -5,7 +5,7 @@
  * creating a parallax-like effect.
  */
 
-import { SVGAnimationPipeline, timeline } from '../src/pipeline';
+import { SVGAnimationPipeline } from '../src/pipeline';
 import { ProgressInfo } from '../src/types';
 
 const svgContent = `

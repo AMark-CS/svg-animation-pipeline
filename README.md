@@ -127,22 +127,15 @@ new SVGAnimationPipeline(config: PipelineConfig, events?: PipelineEvents)
 ## Examples
 
 ### Basic Path Animation
-
-```bash
-npx ts-node examples/basic-path.ts
-```
+![Basic Path](./output/basic-path.gif)
 
 ### Path Morphing
-
-```bash
-npx ts-node examples/morph-demo.ts
-```
+![Morph Demo](./output/morph-demo.gif)
 
 ### Layered Scene (Parallax)
+![Layered Scene](./output/layered-scene.gif)
 
-```bash
-npx ts-node examples/layered-scene.ts
-```
+### Run Examples
 
 ## Architecture
 

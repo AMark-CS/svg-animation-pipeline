@@ -23,6 +23,10 @@ export { mergeRenderOptions, mergeBrowserConfig, QUALITY_PRESETS } from './rende
 // Encoder
 export { FFmpegEncoder, createEncoder } from './encoder/ffmpeg-encoder';
 
+// LLM Integration
+export { LLMOrchestrator, createLLMOrchestrator } from './llm';
+export type { DiagramRequest, LLMResponse, LLMProviderConfig, DiagramStyle, AnimationHint } from './llm/types';
+
 // Pipeline
 export { SVGAnimationPipeline, createPipeline, renderSVGAnimation } from './pipeline';
-export type { PipelineConfigInput } from './pipeline';
+export type { PipelineConfigInput, LLMRenderRequest } from './pipeline';

@@ -8,6 +8,8 @@
 - **程序化动画**：关键帧引擎，支持 24 种缓动函数，变换/颜色/路径插值
 - **按帧渲染**：Puppeteer 无头浏览器逐帧渲染，DOM 元素缓存优化
 - **FFmpeg 合成**：输出 GIF（调色板优化）、MP4 或 WebM
+- **LLM 集成**：支持 OpenAI/Anthropic API，自然语言描述生成 SVG 动画
+- **前端界面**：React + Vite 构建的可视化编辑器
 
 ## Installation
 
@@ -19,8 +21,11 @@ npm install
 
 - Node.js 18+
 - FFmpeg（通过 `@ffmpeg-installer/ffmpeg` 自动安装）
+- OpenAI 或 Anthropic API Key（用于 LLM 集成）
 
 ## Quick Start
+
+### 基础用法
 
 ```typescript
 import { SVGAnimationPipeline } from 'svg-animation-pipeline';
@@ -48,6 +53,28 @@ pipeline.on('progress', (progress) => {
 });
 
 await pipeline.render();
+```
+
+### LLM 集成用法
+
+```typescript
+import { SVGAnimationPipeline } from 'svg-animation-pipeline';
+
+const result = await SVGAnimationPipeline.fromDescription({
+  description: '创建一个用户认证流程图',
+  style: 'ppt-flat',
+  llmConfig: {
+    provider: 'openai',
+    apiKey: 'sk-...',
+  },
+  outputConfig: {
+    output: './output/auth-flow.gif',
+    fps: 30,
+    duration: 6000,
+  },
+});
+
+console.log('Output:', result.output);
 ```
 
 ## API Reference
@@ -155,6 +182,61 @@ new SVGAnimationPipeline(config: PipelineConfig, events?: PipelineEvents)
 │  └──────────────┘    └──────────────┘    └──────────────────┘    │
 └──────────────────────────────────────────────────────────────────┘
 ```
+
+## LLM 集成
+
+### 支持的 LLM 提供商
+
+- **OpenAI**: GPT-4o, GPT-4-turbo
+- **Anthropic**: Claude 3.5 Sonnet, Claude 3 Opus
+
+### 支持的样式
+
+- **ppt-flat**: 白色背景，马卡龙配色，细线条，圆角
+- **dark-tech**: 深色背景，霓虹色，发光效果
+- **academic**: 纯白背景，衬线字体，专业风格
+- **hand-drawn**: 手绘风格，粗线条，活泼配色
+
+### 使用示例
+
+```typescript
+import { LLMOrchestrator } from 'svg-animation-pipeline';
+
+const orchestrator = new LLMOrchestrator({
+  provider: 'openai',
+  apiKey: 'sk-...',
+});
+
+const result = await orchestrator.generateDiagram({
+  description: '创建一个系统架构图',
+  style: 'ppt-flat',
+  dimensions: { width: 1400, height: 950 },
+});
+
+console.log('SVG:', result.svg);
+console.log('Animations:', result.animations);
+```
+
+## 前端界面
+
+### 启动开发服务器
+
+```bash
+# 启动后端 API
+cd server && npm run dev
+
+# 启动前端
+cd frontend && npm run dev
+```
+
+### 功能
+
+- 聊天界面描述图表
+- 实时 SVG 预览
+- 动画时间线编辑
+- 导出 GIF/MP4/WebM
+
+详见 [FRONTEND_README.md](./FRONTEND_README.md)
 
 ## Examples
 

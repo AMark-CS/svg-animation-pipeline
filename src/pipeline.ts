@@ -20,6 +20,8 @@ import { PuppeteerRenderer } from './renderer/puppeteer-renderer';
 import { FFmpegEncoder } from './encoder/ffmpeg-encoder';
 import { loadSVG, parseSVG } from './loader/svg-loader';
 import { prepareForAnimation } from './validator/svg-validator';
+import { LLMOrchestrator, LLMProviderConfig } from './llm';
+import { DiagramStyle } from './llm/types';
 
 export interface PipelineConfigInput {
   input: string;
@@ -32,6 +34,13 @@ export interface PipelineConfigInput {
   quality?: 'low' | 'medium' | 'high';
   /** Preserve native SVG animations (CSS @keyframes + SMIL) for SVG-native animation workflows */
   preserveNativeAnimations?: boolean;
+}
+
+export interface LLMRenderRequest {
+  description: string;
+  style?: DiagramStyle;
+  llmConfig: LLMProviderConfig;
+  outputConfig?: Partial<PipelineConfigInput>;
 }
 
 /**
@@ -316,6 +325,57 @@ export class SVGAnimationPipeline {
    */
   getFPS(): number {
     return this.config.fps;
+  }
+
+  /**
+   * Generate and render diagram from natural language description using LLM
+   *
+   * This is a convenience method that:
+   * 1. Calls LLM to generate SVG + animation config
+   * 2. Creates pipeline with generated content
+   * 3. Renders to output file
+   *
+   * @param request - LLM render request with description and config
+   * @returns RenderResult with output path and metadata
+   */
+  static async fromDescription(request: LLMRenderRequest): Promise<RenderResult> {
+    const orchestrator = new LLMOrchestrator(request.llmConfig);
+
+    // Phase 1: LLM generates SVG + animation config
+    const llmResponse = await orchestrator.generateDiagram({
+      description: request.description,
+      style: request.style,
+      dimensions: {
+        width: request.outputConfig?.width || 1400,
+        height: request.outputConfig?.height || 950,
+      },
+    });
+
+    // Phase 2: Create pipeline with generated content
+    const outputConfig = request.outputConfig || {};
+    const pipeline = new SVGAnimationPipeline({
+      input: llmResponse.svg,
+      output: outputConfig.output || './output/generated.gif',
+      fps: outputConfig.fps || 30,
+      duration: outputConfig.duration || 6000,
+      width: outputConfig.width || 1400,
+      height: outputConfig.height || 950,
+      background: outputConfig.background,
+      quality: outputConfig.quality,
+      preserveNativeAnimations: !!llmResponse.css,
+      ...outputConfig,
+    });
+
+    // Phase 3: Add LLM-generated animations
+    pipeline.addAnimations(llmResponse.animations);
+
+    // Phase 4: Set CSS if provided
+    if (llmResponse.css) {
+      pipeline.setStyles(llmResponse.css);
+    }
+
+    // Phase 5: Render
+    return pipeline.render();
   }
 }
 

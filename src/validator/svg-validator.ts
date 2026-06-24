@@ -130,17 +130,15 @@ export function extractAnimationElements(svg: string): {
   const smilAnimations = svg.match(smilRegex) || [];
 
   // Extract CSS animations
-  const styleRegex = /@keyframes\s+[\w-]+\s*\{[\s\S]*?\}/gi;
   const styleBlocks = svg.match(/<style[^>]*>[\s\S]*?<\/style>/gi) || [];
+  const cssKeyframesRegex = /@keyframes\s+[\w-]+\s*\{[\s\S]*?\}/gi;
   const cssAnimations = [
-    ...svg.match(cssKeyframesRegex) || [],
-    ...styleBlocks.flatMap((block) => [...block.match(cssKeyframesRegex) || []]),
+    ...(svg.match(cssKeyframesRegex) || []),
+    ...styleBlocks.flatMap((block) => [...(block.match(/@keyframes\s+[\w-]+\s*\{[\s\S]*?\}/gi) || [])]),
   ];
 
   return { smilAnimations, cssAnimations };
 }
-
-const cssKeyframesRegex = /@keyframes\s+[\w-]+\s*\{[\s\S]*?\}/gi;
 
 /**
  * Prepare SVG for programmatic animation

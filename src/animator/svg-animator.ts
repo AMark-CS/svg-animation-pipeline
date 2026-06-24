@@ -28,6 +28,7 @@ export interface ElementState {
 export class SVGAnimator {
   private animations: AnimationConfig[] = [];
   private totalDuration: number = 0;
+  private layerMap: Map<string, AnimationConfig[]> = new Map();
 
   /**
    * Add an animation configuration
@@ -38,6 +39,18 @@ export class SVGAnimator {
       this.totalDuration,
       ...config.keyframes.map((kf) => kf.time)
     );
+
+    // Track animated selectors for layer awareness
+    const selectors = Array.isArray(config.targets) ? config.targets : [config.targets];
+    for (const selector of selectors) {
+      const existing = this.layerMap.get(selector);
+      if (existing) {
+        existing.push(config);
+      } else {
+        this.layerMap.set(selector, [config]);
+      }
+    }
+
     return this;
   }
 
@@ -505,6 +518,81 @@ export class SVGAnimator {
                 el.setAttribute(key, value);
               }
             });
+          });
+        });
+      })();
+    `;
+  }
+
+  /**
+   * Get list of all animated CSS selectors
+   */
+  getAnimatedSelectors(): string[] {
+    return Array.from(this.layerMap.keys());
+  }
+
+  /**
+   * Get all registered animations
+   */
+  getAnimations(): AnimationConfig[] {
+    return [...this.animations];
+  }
+
+  /**
+   * Generate script to cache animated DOM element references (run once)
+   */
+  generateInitCacheScript(): string {
+    const selectors = this.getAnimatedSelectors();
+    const selectorsJson = JSON.stringify(selectors);
+
+    return `
+      (function() {
+        var selectors = ${selectorsJson};
+        window.__animCache = {};
+        selectors.forEach(function(sel) {
+          var els = document.querySelectorAll(sel);
+          if (els.length === 1) {
+            window.__animCache[sel] = els[0];
+          } else if (els.length > 1) {
+            window.__animCache[sel] = Array.from(els);
+          }
+        });
+      })();
+    `;
+  }
+
+  /**
+   * Generate optimized per-frame script using cached element references.
+   * Falls back to querySelectorAll for new elements not yet cached.
+   */
+  generateOptimizedApplyScript(states: ElementState[]): string {
+    const stateJson = JSON.stringify(
+      states.map((s) => ({ selector: s.selector, properties: s.properties }))
+    );
+
+    return `
+      (function() {
+        var cache = window.__animCache || {};
+        var states = ${stateJson};
+        states.forEach(function(state) {
+          var cached = cache[state.selector];
+          var elements;
+          if (cached) {
+            elements = Array.isArray(cached) ? cached : [cached];
+          } else {
+            elements = Array.from(document.querySelectorAll(state.selector));
+            cache[state.selector] = elements.length === 1 ? elements[0] : elements;
+          }
+          elements.forEach(function(el) {
+            if (!el) return;
+            var entries = Object.entries(state.properties);
+            for (var i = 0; i < entries.length; i++) {
+              var key = entries[i][0];
+              var value = entries[i][1];
+              if (value !== undefined && value !== null) {
+                el.setAttribute(key, String(value));
+              }
+            }
           });
         });
       })();

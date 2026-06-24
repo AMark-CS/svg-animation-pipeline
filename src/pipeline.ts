@@ -12,6 +12,8 @@ import {
   AnimationConfig,
   RenderResult,
   FrameData,
+  ParsedSVG,
+  SVGLayer,
 } from './types';
 import { SVGAnimator, ElementState } from './animator/svg-animator';
 import { PuppeteerRenderer } from './renderer/puppeteer-renderer';
@@ -44,6 +46,8 @@ export class SVGAnimationPipeline {
   private cssStyles: string = '';
   private tempDir: string;
   private framePaths: string[] = [];
+  private parsedSvg: ParsedSVG | null = null;
+  private initCacheScript: string = '';
 
   constructor(config: PipelineConfigInput, events?: PipelineEvents) {
     this.config = {
@@ -108,20 +112,29 @@ export class SVGAnimationPipeline {
 
   /**
    * Run the complete pipeline
+   *
+   * Phase 1: 分层 — Load SVG, parse layers, validate
+   * Phase 2: 动画 — Set up animator, build cache, configure
+   * Phase 3: 渲逐帧渲染 — Compute per-frame state, render via Puppeteer
+   * Phase 4: 合成 — FFmpeg encode to GIF/MP4/WebM
    */
   async render(): Promise<RenderResult> {
     const startTime = Date.now();
 
     try {
-      // Phase 1: Load and validate SVG
-      this.reportProgress('loading', 0, 0, 0, 'Loading SVG...');
-      await this.loadPhase();
+      // Phase 1: 分层 — Load SVG, parse layer structure
+      this.reportProgress('loading', 0, 0, 0, 'Parsing SVG layers...');
+      await this.parseLayersPhase();
 
-      // Phase 2: Render frames
+      // Phase 2: 动画 — Set up animator and renderer cache
+      this.reportProgress('animating', 0, 0, 0, 'Setting up animations...');
+      await this.setupAnimationPhase();
+
+      // Phase 3: 渲逐帧渲染 — Render each frame
       this.reportProgress('rendering', 0, 0, 0, 'Rendering frames...');
       await this.renderPhase();
 
-      // Phase 3: Encode output
+      // Phase 4: 合成 — Encode output via FFmpeg
       this.reportProgress('encoding', 0, 0, 0, 'Encoding output...');
       await this.encodePhase();
 
@@ -149,35 +162,52 @@ export class SVGAnimationPipeline {
   }
 
   /**
-   * Phase 1: Load and prepare SVG
+   * Phase 1: 分层 — Load SVG, parse layers, validate
    */
-  private async loadPhase(): Promise<void> {
-    // Load SVG file
+  private async parseLayersPhase(): Promise<void> {
+    // Load SVG file or content
     if (fs.existsSync(this.config.input)) {
       const svg = await loadSVG(this.config.input);
+      this.parsedSvg = svg;
       this.svgContent = prepareForAnimation(svg.raw, this.animations.map((a) => ({
         targets: Array.isArray(a.targets) ? a.targets[0] : a.targets,
         properties: Object.keys(a.keyframes[0]?.properties || {}),
       })));
     } else {
       // Treat input as SVG content
+      const svg = parseSVG(this.config.input);
+      this.parsedSvg = svg;
       this.svgContent = prepareForAnimation(this.config.input, []);
     }
 
-    // Add animations to animator
+    this.reportProgress('loading', 50, 0, 0, `SVG parsed: ${this.parsedSvg.layers.length} layers found`);
+  }
+
+  /**
+   * Phase 2: 动画 — Set up animations, initialize renderer, cache DOM elements
+   */
+  private async setupAnimationPhase(): Promise<void> {
+    // Register all animations with the animator
     for (const anim of this.animations) {
       this.animator.addAnimation(anim);
     }
 
-    // Initialize renderer
+    // Initialize renderer and load SVG
     await this.renderer.initialize();
     await this.renderer.loadSVG(this.svgContent, this.cssStyles);
 
-    this.reportProgress('loading', 25, 0, 0, 'SVG loaded and validated');
+    // Build element cache script for optimized per-frame rendering
+    this.initCacheScript = this.animator.generateInitCacheScript();
+    if (this.initCacheScript) {
+      await this.renderer.initCache(this.initCacheScript);
+    }
+
+    const animatedSelectors = this.animator.getAnimatedSelectors();
+    this.reportProgress('animating', 50, 0, 0, `Animation setup: ${animatedSelectors.length} selectors cached`);
   }
 
   /**
-   * Phase 2: Render all frames
+   * Phase 3: 渲逐帧渲染 — Compute per-frame state, render via Puppeteer
    */
   private async renderPhase(): Promise<void> {
     const totalFrames = Math.ceil((this.config.fps * this.config.duration) / 1000);
@@ -190,10 +220,10 @@ export class SVGAnimationPipeline {
 
       // Compute animation state at this time
       const states = this.animator.computeState(time);
-      const stateScript = this.animator.generateApplyScript(states);
+      const stateScript = this.animator.generateOptimizedApplyScript(states);
 
-      // Render frame
-      const frame = await this.renderer.renderFrame(time, stateScript);
+      // Render frame using optimized cache
+      const frame = await this.renderer.renderFrameOptimized(time, stateScript);
 
       // Save frame to temp directory
       const framePath = await this.renderer.saveFrame(frame, `frame${String(i).padStart(5, '0')}.png`);
@@ -257,6 +287,20 @@ export class SVGAnimationPipeline {
   }
 
   /**
+   * Get parsed SVG layers (available after parseLayersPhase)
+   */
+  getLayers(): SVGLayer[] {
+    return this.parsedSvg?.layers || [];
+  }
+
+  /**
+   * Get parsed SVG metadata (available after parseLayersPhase)
+   */
+  getParsedSVG(): ParsedSVG | null {
+    return this.parsedSvg;
+  }
+
+  /**
    * Get animation duration
    */
   getDuration(): number {
@@ -283,6 +327,7 @@ export function createPipeline(
 
 /**
  * Convenience method to render SVG animation with minimal configuration
+ * Follows the 4-stage pipeline: 分层 → 动画 → 渲染 → 合成
  */
 export async function renderSVGAnimation(
   svgInput: string,
@@ -297,12 +342,16 @@ export async function renderSVGAnimation(
     quality?: 'low' | 'medium' | 'high';
   }
 ): Promise<RenderResult> {
-  // Get SVG dimensions if not specified
+  // Parse SVG for dimensions and layer structure
   let width = options?.width || 800;
   let height = options?.height || 600;
 
   if (fs.existsSync(svgInput)) {
     const svg = await loadSVG(svgInput);
+    width = options?.width || svg.width;
+    height = options?.height || svg.height;
+  } else {
+    const svg = parseSVG(svgInput);
     width = options?.width || svg.width;
     height = options?.height || svg.height;
   }

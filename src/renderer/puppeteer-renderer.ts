@@ -154,6 +154,36 @@ export class PuppeteerRenderer {
   }
 
   /**
+   * Initialize DOM element cache for animated selectors (run once after SVG load)
+   */
+  async initCache(initCacheScript: string): Promise<void> {
+    const page = this.getPage();
+    await page.evaluate(initCacheScript);
+  }
+
+  /**
+   * Render a single frame using optimized cached element references
+   */
+  async renderFrameOptimized(time: number, optimizedScript: string): Promise<FrameData> {
+    const page = this.getPage();
+
+    // Apply animation state via cached references
+    await page.evaluate(optimizedScript);
+
+    // Capture screenshot
+    const buffer = await page.screenshot({
+      type: 'png',
+      omitBackground: false,
+    });
+
+    return {
+      time,
+      index: Math.round(time),
+      buffer: buffer as Buffer,
+    };
+  }
+
+  /**
    * Apply state and return frame data
    */
   async renderFrame(time: number, stateScript: string): Promise<FrameData> {

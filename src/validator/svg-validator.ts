@@ -141,20 +141,31 @@ export function extractAnimationElements(svg: string): {
 }
 
 /**
- * Prepare SVG for programmatic animation
- * - Removes SMIL animations
- * - Adds necessary attributes
- * - Sets up animation-ready state
+ * Prepare SVG for rendering
+ *
+ * @param svg - Raw SVG content
+ * @param animations - Programmatic animation configs (keyframe-based)
+ * @param preserveNativeAnimations - If true, keeps CSS @keyframes and SMIL animations
+ *                                    (use when rendering SVG-native animated diagrams)
  */
-export function prepareForAnimation(svg: string, animations: { targets: string; properties: string[] }[]): string {
+export function prepareForAnimation(
+  svg: string,
+  animations: { targets: string; properties: string[] }[],
+  preserveNativeAnimations: boolean = false
+): string {
   let prepared = sanitizeSVG(svg);
 
-  // Remove existing SMIL animations
+  if (preserveNativeAnimations) {
+    // Keep all native SVG animations (CSS @keyframes + SMIL)
+    // for SVG-native animation workflows
+    return prepared;
+  }
+
+  // Remove SMIL animations (they conflict with programmatic approach)
   prepared = prepared.replace(/<animate[^>]*>|<\/animate>|<animateTransform[^>]*>|<\/animateTransform>|<animateMotion[^>]*>|<\/animateMotion>/gi, '');
 
-  // Remove CSS animations from style tags (we'll handle them programmatically)
+  // Remove CSS @keyframes from style tags (programmatic animation handles them)
   prepared = prepared.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, (match) => {
-    // Keep the style tag but remove @keyframes
     return match.replace(/@keyframes\s+[\w-]+\s*\{[\s\S]*?\}/gi, '');
   });
 

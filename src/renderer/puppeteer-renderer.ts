@@ -126,6 +126,7 @@ export class PuppeteerRenderer {
 <html>
 <head>
   <meta charset="UTF-8">
+  <title>SVG Animation</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {

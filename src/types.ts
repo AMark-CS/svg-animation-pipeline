@@ -138,6 +138,7 @@ export interface PipelineConfig {
   height: number;
   background?: string;
   quality?: 'low' | 'medium' | 'high';
+  preserveNativeAnimations?: boolean;
 }
 
 export interface PipelineOptions extends PipelineConfig {

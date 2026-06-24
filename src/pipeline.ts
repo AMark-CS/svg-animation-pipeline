@@ -30,6 +30,8 @@ export interface PipelineConfigInput {
   height: number;
   background?: string;
   quality?: 'low' | 'medium' | 'high';
+  /** Preserve native SVG animations (CSS @keyframes + SMIL) for SVG-native animation workflows */
+  preserveNativeAnimations?: boolean;
 }
 
 /**
@@ -169,15 +171,17 @@ export class SVGAnimationPipeline {
     if (fs.existsSync(this.config.input)) {
       const svg = await loadSVG(this.config.input);
       this.parsedSvg = svg;
+      const preserveNative = this.config.preserveNativeAnimations ?? !fs.existsSync(this.config.input);
       this.svgContent = prepareForAnimation(svg.raw, this.animations.map((a) => ({
         targets: Array.isArray(a.targets) ? a.targets[0] : a.targets,
         properties: Object.keys(a.keyframes[0]?.properties || {}),
-      })));
+      })), preserveNative);
     } else {
       // Treat input as SVG content
       const svg = parseSVG(this.config.input);
       this.parsedSvg = svg;
-      this.svgContent = prepareForAnimation(this.config.input, []);
+      const preserveNative = this.config.preserveNativeAnimations ?? true;
+      this.svgContent = prepareForAnimation(this.config.input, [], preserveNative);
     }
 
     this.reportProgress('loading', 50, 0, 0, `SVG parsed: ${this.parsedSvg.layers.length} layers found`);
@@ -340,6 +344,7 @@ export async function renderSVGAnimation(
     height?: number;
     background?: string;
     quality?: 'low' | 'medium' | 'high';
+    preserveNativeAnimations?: boolean;
   }
 ): Promise<RenderResult> {
   // Parse SVG for dimensions and layer structure
@@ -365,6 +370,7 @@ export async function renderSVGAnimation(
     height,
     background: options?.background,
     quality: options?.quality,
+    preserveNativeAnimations: options?.preserveNativeAnimations ?? !fs.existsSync(svgInput),
   });
 
   pipeline.addAnimations(animations);

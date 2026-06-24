@@ -12,7 +12,12 @@ const SUPPORTED_ELEMENTS = [
   'svg', 'g', 'path', 'rect', 'circle', 'ellipse', 'line', 'polyline', 'polygon',
   'text', 'tspan', 'defs', 'use', 'symbol', 'clipPath', 'mask', 'linearGradient',
   'radialGradient', 'stop', 'filter', 'feGaussianBlur', 'feOffset', 'feBlend',
-  'feColorMatrix', 'feMerge', 'image', 'style', 'title', 'desc',
+  'feColorMatrix', 'feMerge', 'feMergeNode', 'feDropShadow', 'feComposite',
+  'feFlood', 'feComponentTransfer', 'feFuncR', 'feFuncG', 'feFuncB', 'feFuncA',
+  'feGaussianBlur', 'feOffset', 'feBlend', 'feColorMatrix', 'feMerge',
+  'feMergeNode', 'feDropShadow', 'image', 'style', 'title', 'desc', 'marker',
+  'animate', 'animateMotion', 'animateTransform', 'animateColor', 'set',
+  'pattern', 'clipPath',
 ];
 
 const ANIMATABLE_ATTRIBUTES = [
@@ -47,7 +52,7 @@ export function validateSVG(svg: string): ValidationError[] {
     }
   }
 
-  // Check for unsupported elements
+  // Supported elements — animate/animateMotion are intentionally used for SVG-native animations
   const elementMatches = svg.match(/<(\w+)/g) || [];
   const uniqueElements = [...new Set(elementMatches.map((m) => m.slice(1)))];
 
@@ -59,8 +64,6 @@ export function validateSVG(svg: string): ValidationError[] {
       });
     }
   }
-
-  // Check for external references
   if (/href=["']http|src=["']http|xlink:href=["']http/gi.test(svg)) {
     errors.push({
       message: 'External HTTP references will be blocked',
@@ -68,21 +71,11 @@ export function validateSVG(svg: string): ValidationError[] {
     });
   }
 
-  // Check for animation attributes that need special handling
-  if (/animateTransform|animateMotion|animateColor/gi.test(svg)) {
-    errors.push({
-      message: 'SMIL animations detected - these will be replaced by programmatic animation',
-      severity: 'warning',
-    });
-  }
+  // Note: We no longer warn about SMIL/CSS animations here — callers use
+  // prepareForAnimation(preserveNativeAnimations=true) to preserve them.
+  // Only warn about genuinely problematic features.
 
-  // Check for potential issues with stroke-dasharray/dashoffset
-  if (/stroke-dasharray|stroke-dashoffset/gi.test(svg)) {
-    errors.push({
-      message: 'stroke-dasharray/dashoffset found - ensure path has explicit stroke-dasharray',
-      severity: 'warning',
-    });
-  }
+  // stroke-dasharray/dashoffset are used intentionally for CSS/SMIL animations
 
   return errors;
 }

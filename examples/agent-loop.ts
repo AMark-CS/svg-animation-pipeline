@@ -217,22 +217,26 @@ const svgContent = `
 
       <!-- Gears — clean calculated teeth with SMIL animation -->
       <g transform="translate(720, 300)">
-        <circle cx="0" cy="0" r="22" fill="none" stroke="#10b981" stroke-width="2"/>
-        <circle cx="0" cy="0" r="8"  fill="none" stroke="#10b981" stroke-width="2"/>
-        ${[0,45,90,135,180,225,270,315].map(a => {
-          const r = a * Math.PI / 180;
-          return `<line x1="${(Math.cos(r)*22).toFixed(1)}" y1="${(Math.sin(r)*22).toFixed(1)}" x2="${(Math.cos(r)*14).toFixed(1)}" y2="${(Math.sin(r)*14).toFixed(1)}" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>`;
-        }).join('')}
-        <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="30s" repeatCount="indefinite" additive="sum"/>
+        <g>
+          <circle cx="0" cy="0" r="22" fill="none" stroke="#10b981" stroke-width="2"/>
+          <circle cx="0" cy="0" r="8"  fill="none" stroke="#10b981" stroke-width="2"/>
+          ${[0,45,90,135,180,225,270,315].map(a => {
+            const r = a * Math.PI / 180;
+            return `<line x1="${(Math.cos(r)*22).toFixed(1)}" y1="${(Math.sin(r)*22).toFixed(1)}" x2="${(Math.cos(r)*14).toFixed(1)}" y2="${(Math.sin(r)*14).toFixed(1)}" stroke="#10b981" stroke-width="3" stroke-linecap="round"/>`;
+          }).join('')}
+          <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="30s" repeatCount="indefinite"/>
+        </g>
       </g>
       <g transform="translate(790, 318)">
-        <circle cx="0" cy="0" r="22" fill="none" stroke="#34d399" stroke-width="2"/>
-        <circle cx="0" cy="0" r="8"  fill="none" stroke="#34d399" stroke-width="2"/>
-        ${[0,45,90,135,180,225,270,315].map(a => {
-          const r = a * Math.PI / 180;
-          return `<line x1="${(Math.cos(r)*22).toFixed(1)}" y1="${(Math.sin(r)*22).toFixed(1)}" x2="${(Math.cos(r)*14).toFixed(1)}" y2="${(Math.sin(r)*14).toFixed(1)}" stroke="#34d399" stroke-width="3" stroke-linecap="round"/>`;
-        }).join('')}
-        <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="-360 0 0" dur="24s" repeatCount="indefinite" additive="sum"/>
+        <g>
+          <circle cx="0" cy="0" r="22" fill="none" stroke="#34d399" stroke-width="2"/>
+          <circle cx="0" cy="0" r="8"  fill="none" stroke="#34d399" stroke-width="2"/>
+          ${[0,45,90,135,180,225,270,315].map(a => {
+            const r = a * Math.PI / 180;
+            return `<line x1="${(Math.cos(r)*22).toFixed(1)}" y1="${(Math.sin(r)*22).toFixed(1)}" x2="${(Math.cos(r)*14).toFixed(1)}" y2="${(Math.sin(r)*14).toFixed(1)}" stroke="#34d399" stroke-width="3" stroke-linecap="round"/>`;
+          }).join('')}
+          <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="-360 0 0" dur="24s" repeatCount="indefinite"/>
+        </g>
       </g>
 
       <text x="785" y="370" text-anchor="middle" fill="#4a4a6a" font-family="system-ui,sans-serif" font-size="11">选择工具 · 组装调用</text>

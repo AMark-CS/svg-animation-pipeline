@@ -158,13 +158,13 @@ new SVGAnimationPipeline(config: PipelineConfig, events?: PipelineEvents)
 
 ## Examples
 
-### Loop Engineering Internal Mechanism
-![Loop Engineering](./output/loop-engineering.gif)
+### Agent Loop Mechanism
+![Agent Loop](./output/agent-loop.gif)
 
 ### Run Examples
 
 ```bash
-npx ts-node examples/agent-architecture.ts
+npx ts-node examples/agent-loop.ts
 npx ts-node examples/layered-scene.ts
 npx ts-node examples/basic-path.ts
 npx ts-node examples/morph-demo.ts

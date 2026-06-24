@@ -61,9 +61,13 @@ export class SVGAnimationPipeline {
   private initCacheScript: string = '';
 
   constructor(config: PipelineConfigInput, events?: PipelineEvents) {
+    // Only resolve to absolute path if input looks like a file path
+    // (doesn't start with '<' which indicates inline SVG content)
+    const isInlineSVG = config.input.trimStart().startsWith('<');
+
     this.config = {
       ...config,
-      input: path.resolve(config.input),
+      input: isInlineSVG ? config.input : path.resolve(config.input),
       output: path.resolve(config.output),
       background: config.background || '#ffffff',
       quality: config.quality || 'medium',

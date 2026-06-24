@@ -319,40 +319,46 @@ const svgContent = `
 
     <!-- Working Memory -->
     <g id="working-memory">
-      <rect x="78" y="630" width="444" height="140" rx="12" fill="#fff" stroke="#d0d8f8" stroke-width="1"/>
-      <text x="300" y="660" text-anchor="middle" fill="#3848b8" font-family="system-ui,sans-serif" font-size="13" font-weight="600">Working Memory</text>
-      <!-- Document stack — elegant layered -->
-      <rect x="155" y="680" width="44" height="6" rx="2.5" fill="#c0c8f8" class="shimmer"/>
-      <rect x="151" y="690" width="52" height="6" rx="2.5" fill="#d0d8ff" class="shimmer" style="animation-delay:0.4s"/>
-      <rect x="147" y="700" width="60" height="6" rx="2.5" fill="#e0e4ff" class="shimmer" style="animation-delay:0.8s"/>
-      <rect x="143" y="710" width="68" height="6" rx="2.5" fill="#eef0ff" class="shimmer" style="animation-delay:1.2s"/>
-      <rect x="139" y="720" width="76" height="6" rx="2.5" fill="#f4f4ff" class="shimmer" style="animation-delay:1.6s"/>
-      <text x="300" y="745" text-anchor="middle" fill="#4a4a6a" font-family="system-ui,sans-serif" font-size="11">短期上下文窗口</text>
-      <text x="300" y="760" text-anchor="middle" fill="#8888a8" font-family="system-ui,sans-serif" font-size="10">会话历史 · 工具调用记录</text>
+      <rect x="78" y="625" width="444" height="155" rx="12" fill="#fff" stroke="#d0d8f8" stroke-width="1"/>
+      <text x="300" y="655" text-anchor="middle" fill="#3848b8" font-family="system-ui,sans-serif" font-size="13" font-weight="600">Working Memory</text>
+
+      <!-- Document stack — centered, elegant layered -->
+      <rect x="160" y="678" width="48" height="7" rx="3" fill="#c0c8f8" class="shimmer"/>
+      <rect x="156" y="689" width="56" height="7" rx="3" fill="#d0d8ff" class="shimmer" style="animation-delay:0.4s"/>
+      <rect x="152" y="700" width="64" height="7" rx="3" fill="#e0e4ff" class="shimmer" style="animation-delay:0.8s"/>
+      <rect x="148" y="711" width="72" height="7" rx="3" fill="#eef0ff" class="shimmer" style="animation-delay:1.2s"/>
+      <rect x="144" y="722" width="80" height="7" rx="3" fill="#f4f4ff" class="shimmer" style="animation-delay:1.6s"/>
+
+      <!-- Description text — positioned below stack -->
+      <text x="300" y="755" text-anchor="middle" fill="#4a4a6a" font-family="system-ui,sans-serif" font-size="11">短期上下文窗口</text>
+      <text x="300" y="772" text-anchor="middle" fill="#8888a8" font-family="system-ui,sans-serif" font-size="10">会话历史 · 工具调用记录</text>
     </g>
 
     <!-- Long-term Memory -->
     <g id="longterm-memory">
-      <rect x="78" y="790" width="444" height="140" rx="12" fill="#fff" stroke="#d0d8f8" stroke-width="1"/>
-      <text x="300" y="820" text-anchor="middle" fill="#3848b8" font-family="system-ui,sans-serif" font-size="13" font-weight="600">Long-term Memory</text>
-      <!-- Database cylinder — clean -->
-      <ellipse cx="215" cy="850" rx="20" ry="6" fill="none" stroke="#6080d0" stroke-width="1.8">
+      <rect x="78" y="795" width="444" height="155" rx="12" fill="#fff" stroke="#d0d8f8" stroke-width="1"/>
+      <text x="300" y="825" text-anchor="middle" fill="#3848b8" font-family="system-ui,sans-serif" font-size="13" font-weight="600">Long-term Memory</text>
+
+      <!-- Database cylinder — centered -->
+      <ellipse cx="220" cy="862" rx="22" ry="7" fill="none" stroke="#6080d0" stroke-width="1.8">
         <animate attributeName="stroke-opacity" values="1;0.3;1" dur="4s" repeatCount="indefinite"/>
       </ellipse>
-      <line x1="195" y1="850" x2="195" y2="870" stroke="#6080d0" stroke-width="1.8">
+      <line x1="198" y1="862" x2="198" y2="884" stroke="#6080d0" stroke-width="1.8">
         <animate attributeName="stroke-opacity" values="1;0.3;1" dur="4s" repeatCount="indefinite"/>
       </line>
-      <line x1="235" y1="850" x2="235" y2="870" stroke="#6080d0" stroke-width="1.8">
+      <line x1="242" y1="862" x2="242" y2="884" stroke="#6080d0" stroke-width="1.8">
         <animate attributeName="stroke-opacity" values="1;0.3;1" dur="4s" repeatCount="indefinite" begin="0.8s"/>
       </line>
-      <ellipse cx="215" cy="870" rx="20" ry="6" fill="none" stroke="#6080d0" stroke-width="1.8">
+      <ellipse cx="220" cy="884" rx="22" ry="7" fill="none" stroke="#6080d0" stroke-width="1.8">
         <animate attributeName="stroke-opacity" values="1;0.3;1" dur="4s" repeatCount="indefinite" begin="1.6s"/>
       </ellipse>
-      <ellipse cx="215" cy="860" rx="20" ry="6" fill="none" stroke="#90a8e0" stroke-width="1.2">
+      <ellipse cx="220" cy="873" rx="22" ry="7" fill="none" stroke="#90a8e0" stroke-width="1.2">
         <animate attributeName="stroke-opacity" values="0.8;0.2;0.8" dur="4s" repeatCount="indefinite" begin="2.4s"/>
       </ellipse>
-      <text x="300" y="895" text-anchor="middle" fill="#4a4a6a" font-family="system-ui,sans-serif" font-size="11">长期向量知识库</text>
-      <text x="300" y="910" text-anchor="middle" fill="#8888a8" font-family="system-ui,sans-serif" font-size="10">RAG · 知识图谱</text>
+
+      <!-- Description text — positioned below cylinder -->
+      <text x="300" y="918" text-anchor="middle" fill="#4a4a6a" font-family="system-ui,sans-serif" font-size="11">长期向量知识库</text>
+      <text x="300" y="935" text-anchor="middle" fill="#8888a8" font-family="system-ui,sans-serif" font-size="10">RAG · 知识图谱</text>
     </g>
   </g>
 
@@ -412,12 +418,6 @@ const svgContent = `
       <rect x="600" y="795" width="340" height="55" rx="10" fill="#fff5f5" stroke="#f08080" stroke-width="1"/>
       <text x="770" y="820" text-anchor="middle" fill="#dc2626" font-family="system-ui,sans-serif" font-size="12" font-weight="600">↻ Reject + Replan</text>
       <text x="770" y="838" text-anchor="middle" fill="#8888a8" font-family="system-ui,sans-serif" font-size="10">拒绝并重新规划，回流至 Think</text>
-    </g>
-
-    <!-- Pass indicator -->
-    <g id="pass-indicator">
-      <rect x="1050" y="860" width="100" height="32" rx="7" fill="#e8fff0" stroke="#86efac" stroke-width="1"/>
-      <text x="1100" y="880" text-anchor="middle" fill="#15803d" font-family="system-ui,sans-serif" font-size="11" font-weight="600">→ 调度分发</text>
     </g>
   </g>
 

@@ -33,8 +33,16 @@ const svgContent = `
       /* ── Gear spin ── */
       @keyframes spinCW  { to { transform: rotate(360deg); } }
       @keyframes spinCCW { to { transform: rotate(-360deg); } }
-      .gear-cw  { animation: spinCW  30s linear infinite; transform-origin: center; }
-      .gear-ccw { animation: spinCCW 24s linear infinite; transform-origin: center; }
+      .gear-cw  {
+        animation: spinCW  30s linear infinite;
+        transform-box: fill-box;
+        transform-origin: center;
+      }
+      .gear-ccw {
+        animation: spinCCW 24s linear infinite;
+        transform-box: fill-box;
+        transform-origin: center;
+      }
 
       /* ── Breathing ── */
       @keyframes breathe {
